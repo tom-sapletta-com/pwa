@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TESTER PRO - Interactive Interface</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0a0c15;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        .device-container {
+            background: #000;
+            border-radius: 30px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+            position: relative;
+        }
+        
+        .interface {
+            width: 1400px;
+            height: 700px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #1a1d29;
+            border-radius: 20px;
+            padding: 40px;
+        }
+        
+        /* Encoders */
+        .encoder {
+            width: 200px;
+            height: 200px;
+            position: relative;
+            cursor: pointer;
+            user-select: none;
+        }
+        
+        .encoder-outer {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #3a4152, #2a3142);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5), inset 0 -5px 10px rgba(0,0,0,0.3);
+            position: relative;
+            transition: transform 0.1s;
+        }
+        
+        .encoder-outer:active {
+            transform: scale(0.95);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5), inset 0 -2px 5px rgba(0,0,0,0.3);
+        }
+        
+        .encoder-inner {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            bottom: 20px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 40% 40%, #4a5568, #374151);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.3s ease;
+        }
+        
+        .encoder-label {
+            font-size: 24px;
+            font-weight: bold;
+            color: #fff;
+            text-align: center;
+        }
+        
+        .encoder-sublabel {
+            font-size: 14px;
+            color: #9ca3af;
+            margin-top: 5px;
+        }
+        
+        .encoder-indicator {
+            position: absolute;
+            width: 8px;
+            height: 40px;
+            background: #4a9eff;
+            border-radius: 4px;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            transform-origin: 50% 90px;
+            box-shadow: 0 0 10px #4a9eff;
+            transition: transform 0.3s ease;
+        }
+        
+        .encoder.right .encoder-indicator {
+            background: #00ff00;
+            box-shadow: 0 0 10px #00ff00;
+        }
+        
+        .encoder-info {
+            text-align: center;
+            margin-top: 20px;
+            color: #6b7280;
+            font-size: 14px;
+        }
+        
+        /* LCD Display */
+        .lcd-container {
+            flex: 1;
+            max-width: 800px;
+            height: 500px;
+            background: #0a0c15;
+            border-radius: 20px;
+            border: 3px solid #2a3142;
+            padding: 30px;
+            margin: 0 40px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: inset 0 0 30px rgba(0,0,0,0.8);
+        }
+        
+        .lcd-content {
+            height: 100%;
+            display: flex;
+            gap: 30px;
+        }
+        
+        .menu-section {
+            flex: 1;
+            background: #1a1d29;
+            border-radius: 15px;
+            padding: 25px;
+        }
+        
+        .menu-title {
+            font-size: 22px;
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 20px;
+        }
+        
+        .menu-item {
+            background: #2a3142;
+            border: 2px solid transparent;
+            border-radius: 10px;
+            padding: 15px 20px;
+            margin-bottom: 15px;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .menu-item:hover {
+            background: #3a4152;
+            border-color: #4a5568;
+        }
+        
+        .menu-item.active {
+            background: #2a3552;
+            border-color: #4a9eff;
+            box-shadow: 0 0 20px rgba(74, 158, 255, 0.3);
+        }
+        
+        .menu-icon {
+            font-size: 20px;
+        }
+        
+        .center-section {
+            flex: 0.8;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .logo {
+            width: 100px;
+            height: 100px;
+            background: #4a9eff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 50px;
+            color: #fff;
+            margin-bottom: 20px;
+            box-shadow: 0 0 30px rgba(74, 158, 255, 0.5);
+        }
+        
+        .system-title {
+            font-size: 32px;
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+        
+        .system-subtitle {
+            font-size: 16px;
+            color: #9ca3af;
+            margin-bottom: 5px;
+        }
+        
+        .system-version {
+            font-size: 14px;
+            color: #6b7280;
+        }
+        
+        .data-section {
+            flex: 0.8;
+            background: #1a1d29;
+            border-radius: 15px;
+            padding: 25px;
+        }
+        
+        .data-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .pressure-item {
+            background: #0f1118;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .pressure-label {
+            font-size: 14px;
+            color: #9ca3af;
+            margin-bottom: 5px;
+        }
+        
+        .pressure-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 5px;
+        }
+        
+        .pressure-unit {
+            font-size: 14px;
+            color: #6b7280;
+        }
+        
+        .system-status {
+            background: #0f1118;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            color: #00ff00;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        
+        /* Interactive states */
+        .encoder-inner.rotating {
+            animation: rotate 0.5s ease-out;
+        }
+        
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .pressure-value.changing {
+            animation: pulse 0.3s ease;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <div class="device-container">
+        <div class="interface">
+            <!-- Left Encoder -->
+            <div class="encoder-container">
+                <div class="encoder left" id="leftEncoder">
+                    <div class="encoder-outer">
+                        <div class="encoder-indicator" id="leftIndicator"></div>
+                        <div class="encoder-inner">
+                            <div class="encoder-label">MENU</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="encoder-info">
+                    <div>Menu Navigation</div>
+                    <div style="font-size: 12px; margin-top: 5px;">
+                        <span style="color: #4a9eff;">⟲</span> Rotate: Navigate<br>
+                        <span style="color: #4a9eff;">●</span> Press: Select
+                    </div>
+                </div>
+            </div>
+            
+            <!-- LCD Display -->
+            <div class="lcd-container">
+                <div class="lcd-content">
+                    <!-- Menu Section -->
+                    <div class="menu-section">
+                        <div class="menu-title">MENU GŁÓWNE</div>
+                        <div class="menu-item active" data-index="0">
+                            <span class="menu-icon">⚡</span>
+                            <span>Start systemu</span>
+                        </div>
+                        <div class="menu-item" data-index="1">
+                            <span class="menu-icon">🔧</span>
+                            <span>Autodiagnostyka</span>
+                        </div>
+                        <div class="menu-item" data-index="2">
+                            <span class="menu-icon">👤</span>
+                            <span>Logowanie</span>
+                        </div>
+                        <div class="menu-item" data-index="3">
+                            <span class="menu-icon">📡</span>
+                            <span>Serwis zdalny</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Center Section -->
+                    <div class="center-section">
+                        <div class="logo">⚡</div>
+                        <div class="system-title">TESTER PRO</div>
+                        <div class="system-subtitle">System testowania urządzeń</div>
+                        <div class="system-version">Wersja 2.1.0</div>
+                    </div>
+                    
+                    <!-- Data Section -->
+                    <div class="data-section">
+                        <div class="data-title">DANE TESTERA</div>
+                        <div class="pressure-item">
+                            <div class="pressure-label">Wysokie</div>
+                            <div class="pressure-value" id="highPressure">150.2</div>
+                            <div class="pressure-unit">bar</div>
+                        </div>
+                        <div class="pressure-item">
+                            <div class="pressure-label">Niskie</div>
+                            <div class="pressure-value" id="lowPressure">80.5</div>
+                            <div class="pressure-unit">bar</div>
+                        </div>
+                        <div class="pressure-item">
+                            <div class="pressure-label">Średnie</div>
+                            <div class="pressure-value" id="medPressure">115.4</div>
+                            <div class="pressure-unit">bar</div>
+                        </div>
+                        <div class="system-status">System Ready</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right Encoder -->
+            <div class="encoder-container">
+                <div class="encoder right" id="rightEncoder">
+                    <div class="encoder-outer">
+                        <div class="encoder-indicator" id="rightIndicator"></div>
+                        <div class="encoder-inner">
+                            <div class="encoder-label">PRESSURE</div>
+                            <div class="encoder-sublabel">CONTROL</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="encoder-info">
+                    <div>Pressure Control</div>
+                    <div style="font-size: 12px; margin-top: 5px;">
+                        <span style="color: #00ff00;">●</span> Press: Mode<br>
+                        <span style="color: #00ff00;">⟲</span> Rotate: Adjust
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Interactive functionality
+        let currentMenuItem = 0;
+        let leftRotation = 0;
+        let rightRotation = 0;
+        let pressureMode = 0; // 0: high, 1: medium, 2: low
+        let isDragging = false;
+        let startAngle = 0;
+        let currentEncoder = null;
+        
+        const menuItems = document.querySelectorAll('.menu-item');
+        const leftEncoder = document.getElementById('leftEncoder');
+        const rightEncoder = document.getElementById('rightEncoder');
+        const leftIndicator = document.getElementById('leftIndicator');
+        const rightIndicator = document.getElementById('rightIndicator');
+        
+        const pressureValues = {
+            high: 150.2,
+            medium: 115.4,
+            low: 80.5
+        };
+        
+        // Menu navigation
+        function updateMenu() {
+            menuItems.forEach((item, index) => {
+                item.classList.toggle('active', index === currentMenuItem);
+            });
+        }
+        
+        // Encoder rotation handling
+        function handleEncoderStart(e, encoder) {
+            isDragging = true;
+            currentEncoder = encoder;
+            const rect = encoder.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+            startAngle = Math.atan2(e.clientY - centerY, e.clientX - centerX);
+            e.preventDefault();
+        }
+        
+        function handleEncoderMove(e) {
+            if (!isDragging || !currentEncoder) return;
+            
+            const rect = currentEncoder.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+            const angle = Math.atan2(e.clientY - centerY, e.clientX - centerX);
+            const rotation = (angle - startAngle) * (180 / Math.PI);
+            
+            if (currentEncoder === leftEncoder) {
+                leftRotation += rotation;
+                leftIndicator.style.transform = `translateX(-50%) rotate(${leftRotation}deg)`;
+                
+                // Menu navigation
+                if (Math.abs(rotation) > 30) {
+                    if (rotation > 0) {
+                        currentMenuItem = (currentMenuItem + 1) % menuItems.length;
+                    } else {
+                        currentMenuItem = (currentMenuItem - 1 + menuItems.length) % menuItems.length;
+                    }
+                    updateMenu();
+                    startAngle = angle;
+                }
+            } else if (currentEncoder === rightEncoder) {
+                rightRotation += rotation;
+                rightIndicator.style.transform = `translateX(-50%) rotate(${rightRotation}deg)`;
+                
+                // Pressure adjustment
+                if (Math.abs(rotation) > 10) {
+                    const change = rotation > 0 ? 0.1 : -0.1;
+                    const pressureElements = {
+                        0: 'highPressure',
+                        1: 'medPressure',
+                        2: 'lowPressure'
+                    };
+                    
+                    const element = document.getElementById(pressureElements[pressureMode]);
+                    let value = parseFloat(element.textContent);
+                    value = Math.max(0, Math.min(200, value + change));
+                    element.textContent = value.toFixed(1);
+                    element.classList.add('changing');
+                    setTimeout(() => element.classList.remove('changing'), 300);
+                    
+                    startAngle = angle;
+                }
+            }
+        }
+        
+        function handleEncoderEnd() {
+            isDragging = false;
+            currentEncoder = null;
+        }
+        
+        // Encoder click handling
+        leftEncoder.addEventListener('click', function(e) {
+            if (!isDragging) {
+                console.log('Selected:', menuItems[currentMenuItem].textContent);
+                // Add selection animation
+                this.querySelector('.encoder-inner').classList.add('rotating');
+                setTimeout(() => this.querySelector('.encoder-inner').classList.remove('rotating'), 500);
+            }
+        });
+        
+        rightEncoder.addEventListener('click', function(e) {
+            if (!isDragging) {
+                pressureMode = (pressureMode + 1) % 3;
+                const modes = ['Wysokie', 'Średnie', 'Niskie'];
+                console.log('Pressure mode:', modes[pressureMode]);
+                // Add mode change animation
+                this.querySelector('.encoder-inner').classList.add('rotating');
+                setTimeout(() => this.querySelector('.encoder-inner').classList.remove('rotating'), 500);
+            }
+        });
+        
+        // Mouse events
+        leftEncoder.addEventListener('mousedown', (e) => handleEncoderStart(e, leftEncoder));
+        rightEncoder.addEventListener('mousedown', (e) => handleEncoderStart(e, rightEncoder));
+        document.addEventListener('mousemove', handleEncoderMove);
+        document.addEventListener('mouseup', handleEncoderEnd);
+        
+        // Menu item click
+        menuItems.forEach((item, index) => {
+            item.addEventListener('click', function() {
+                currentMenuItem = index;
+                updateMenu();
+            });
+        });
+        
+        // Prevent text selection
+        document.addEventListener('selectstart', (e) => {
+            if (isDragging) e.preventDefault();
+        });
+    </script>
+</body>
+</html>
